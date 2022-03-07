@@ -39,11 +39,15 @@ module SidekiqTracer
             logger.error(payload)
             raise e
           ensure
-            Current.reset
+            unglobalized_request_id
           end
 
           def globalized_request_id(_worker, item, _queue)
-            Current.web_request_id = item['request_id'] if item['request_id']
+            RequestStore.write(:web_request_id, item['request_id']) if item['request_id']
+          end
+
+          def unglobalized_request_id
+            RequestStore.delete(:web_request_id)
           end
 
           def extract_queries
