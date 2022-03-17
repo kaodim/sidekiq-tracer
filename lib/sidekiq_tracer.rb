@@ -6,7 +6,7 @@ require 'sidekiq_tracer/sidekiq/middleware/server/tracer'
 module SidekiqTracer
   module_function
 
-  Config = Struct.new(:logger, :custom_tracer_options, :skip_distributed_trace_on).new
+  Config = Struct.new(:logger, :custom_tracer_options, :custom_client_distributed_tracer, :skip_distributed_trace_on).new
 
   def configure
     yield Config
