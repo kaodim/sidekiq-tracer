@@ -45,6 +45,12 @@ SidekiqTracer.configure do |config|
   config.skip_distributed_trace_on = proc do |_worker, job, _queue|
     job['retry_count'].to_i >= 3 # you can set this value dynamically based on the worker name, job info and queue name
   end
+
+  # example forming distributed Datadog trace id
+  config.custom_client_distributed_tracer = proc do |_worker, job, _queue|
+    dist_trace_id = job['retry_count'].to_i >= 3 ?  nil : job['trace_id']
+    corr = Datadog.tracer&.active_correlation
+    job.merge!({'trace_id' => dist_trace_id.presence || corr&.trace_id, 'span_id' => corr&.span_id })
 end 
 
 # You need to configure the sidekiq client middleware.
